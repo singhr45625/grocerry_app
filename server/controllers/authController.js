@@ -1,0 +1,166 @@
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const { StatusCodes } = require('http-status-codes');
+
+const register = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  // Basic validation
+  if (!name || !email || !password) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      error: 'Please provide name, email, and password'
+    });
+  }
+
+  try {
+    const user = await User.create({ name, email, password });
+    const token = createToken(user);
+    
+    res.status(StatusCodes.CREATED).json({ 
+      user: { 
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }, 
+      token 
+    });
+  } catch (error) {
+    // Handle duplicate email error
+    if (error.code === 11000) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: 'Email already exists'
+      });
+    }
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(el => el.message);
+      return res.status(StatusCodes.BAD_REQUEST).json({ errors });
+    }
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+      error: 'Registration failed' 
+    });
+  }
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      error: 'Please provide email and password' 
+    });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ 
+        error: 'Invalid credentials' 
+      });
+    }
+
+    const token = createToken(user);
+    res.status(StatusCodes.OK).json({ 
+      user: { 
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }, 
+      token 
+    });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+      error: 'Login failed' 
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: 'User ID is required'
+      });
+    }
+
+    const result = await User.findByIdAndDelete(userId);
+    
+    if (!result) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        error: 'User not found'
+      });
+    }
+
+    res.status(StatusCodes.OK).json({
+      message: 'User deleted successfully',
+      deletedUser: result
+    });
+
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: 'Invalid user ID format'
+      });
+    }
+    console.log("Error deleting user:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'An error occurred while deleting the user',
+      error: error.message
+    });
+  }
+};
+
+const searchUser = async(req, res) => {
+  try {
+      const { name, email} = req.query;
+      const query = {};
+      if(name) query.name = { $regex: name, $options: 'i' };
+      if(email) query.email = { $regex: email, $options: 'i' };
+
+      if (Object.keys(query).length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Please provide a name or email to search'
+      });
+    }
+
+      const searchResult = await User.find(query);
+
+      if(searchResult.length > 0) {
+        res.status(StatusCodes.OK).json({
+          message: 'User found',
+          users: searchResult
+        });
+      }
+
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'No user found with the provided criteria'
+      });
+  } catch (err) {
+    console.error("Error searching user:", err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'An error occured while searching for the user',
+      error: err.message
+    });
+  }
+}
+
+// Helper function to create JWT
+const createToken = (user) => {
+  return jwt.sign(
+    { 
+      userId: user._id, 
+      name: user.name, 
+      email: user.email,
+      role: user.role || 'user' // Default role if not specified
+    },
+    process.env.JWT_SECRET,
+    { 
+      expiresIn: process.env.JWT_LIFETIME || '7d' // Default to 7 days if not set
+    }
+  );
+};
+
+module.exports = { register, login, deleteUser, searchUser };
