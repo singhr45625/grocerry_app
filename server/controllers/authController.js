@@ -147,6 +147,68 @@ const searchUser = async(req, res) => {
   }
 }
 
+const updateUser = async (req, res) => {
+  const { userId } = req.params;
+  const { name, email, currentPassword, newPassword } = req.body;
+  
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        error: 'User not found'
+      });
+    }
+
+    if (currentPassword && newPassword) {
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+          error: 'Invalid current password'
+        });
+      }
+      user.password = newPassword;
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    try {
+      await user.save();
+    } catch (err) {
+      if (err.code === 11000) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: 'Email already exists'
+        });
+      }
+      throw err;
+    }
+
+    const token = createToken(user);
+
+    res.status(StatusCodes.OK).json({
+      message: 'User updated successfully',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email
+      },
+      token
+    });
+
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(el => el.message);
+      return res.status(StatusCodes.BAD_REQUEST).json({ errors });
+    }
+    console.error("Error updating user:", err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'An error occurred while updating the user',
+      error: err.message
+    });
+  }
+};
+
 // Helper function to create JWT
 const createToken = (user) => {
   return jwt.sign(
@@ -163,4 +225,4 @@ const createToken = (user) => {
   );
 };
 
-module.exports = { register, login, deleteUser, searchUser };
+module.exports = { register, login, deleteUser, searchUser , updateUser};

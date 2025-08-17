@@ -4,6 +4,8 @@ import Signup from './components/Signup';
 import Login from './components/Login';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
+import Profile from './components/Profile';
+import { CartProvider } from './context/CartContext'; // Import the CartProvider
 import './App.css';
 
 // Auth check component
@@ -15,21 +17,32 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
-      </div>
+      {/* Wrap the entire application with CartProvider */}
+      <CartProvider>
+        <div className="app-container">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+              />
+          </Routes>
+        </div>
+      </CartProvider>
     </Router>
   );
 }
