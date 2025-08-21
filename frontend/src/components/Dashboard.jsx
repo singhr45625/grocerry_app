@@ -92,10 +92,14 @@ const Dashboard = () => {
           <p className="welcome-message">Ready to explore our latest products?</p>
         </div>
         <div className="header-actions">
-          <div className="cart-info">
-            <span className="cart-count">{cartCount} items</span>
-            <span className="cart-total">${cartTotal.toFixed(2)}</span> {/* Corrected: Changed from getCartTotal() to cartTotal */}
-          </div>
+        <div 
+            className="cart-info" 
+            onClick={() => navigate('/cart')} 
+            style={{cursor: 'pointer', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
+            >
+            <span className="cart-count">{cartCount} items</span>
+            <span className="cart-total">${cartTotal.toFixed(2)}</span>
+        </div>
           <button onClick={handleLogout} className="btn btn-danger">
             Logout
           </button>

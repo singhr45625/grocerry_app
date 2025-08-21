@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
+import Cart from './components/Cart'
 import { CartProvider } from './context/CartContext'; // Import the CartProvider
 import './App.css';
 
@@ -39,6 +40,14 @@ function App() {
                   <Profile />
                 </ProtectedRoute>
               }
+              />
+              <Route 
+               path="/cart"
+               element={
+               <ProtectedRoute>
+                 <Cart />
+               </ProtectedRoute>
+               }
               />
           </Routes>
         </div>

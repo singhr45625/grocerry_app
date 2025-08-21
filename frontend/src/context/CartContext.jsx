@@ -1,5 +1,5 @@
-// context/CartContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CartContext = createContext();
@@ -28,7 +28,8 @@ export const CartProvider = ({ children }) => {
     const fetchCart = async () => {
       try {
         const { data } = await api.get('/');
-        setCart(data.items ? data : { items: [] });
+        // Ensure data is not null or undefined before setting the cart
+        setCart(data?.items ? data : { items: [] });
       } catch (err) {
         console.error("Error loading cart:", err);
       }
@@ -53,16 +54,30 @@ export const CartProvider = ({ children }) => {
   };
 
   // Remove item from cart
-  const removeItem = async (itemId) => {
+  const removeFromCart = async (itemId) => {
     setLoading(true);
     try {
       const { data } = await api.delete(`/${itemId}`);
-      setCart(data.items ? data : { items: [] });
+      setCart(data?.items ? data : { items: [] });
       setMessage('Item removed from cart');
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
       console.error("Error removing item:", err);
       setMessage(err.response?.data?.message || 'Failed to remove item');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update item quantity
+  const updateQuantity = async (itemId, quantity) => {
+    setLoading(true);
+    try {
+      const { data } = await api.put(`/${itemId}`, { quantity });
+      setCart(data);
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+      setMessage(err.response?.data?.message || 'Failed to update quantity');
     } finally {
       setLoading(false);
     }
@@ -84,7 +99,8 @@ export const CartProvider = ({ children }) => {
       value={{
         cart: cart.items,
         addToCart: addItem,
-        removeFromCart: removeItem,
+        removeFromCart,
+        updateQuantity,
         cartTotal: getTotal(),
         cartCount: getCount(),
         cartMessage: message,
