@@ -6,7 +6,7 @@ import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import Cart from './components/Cart'
-import { CartProvider } from './context/CartContext'; // Import the CartProvider
+import { CartProvider } from './context/CartContext'; 
 import './App.css';
 
 // Auth check component
