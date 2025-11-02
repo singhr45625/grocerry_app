@@ -25,7 +25,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await axios.post('https://full-stack-api-d7xf.onrender.com/api/auth/login', {
         email: formData.email,
         password: formData.password
       });

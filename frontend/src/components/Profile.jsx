@@ -92,7 +92,7 @@ const Profile = () => {
       }
 
       const response = await axios.put(
-        `http://localhost:3001/api/auth/update/${user._id}`,
+        `https://full-stack-api-d7xf.onrender.com/api/auth/update/${user._id}`,
         updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

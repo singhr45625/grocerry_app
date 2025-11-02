@@ -33,7 +33,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post('/api/auth/register', {
+      const response = await axios.post('https://full-stack-api-d7xf.onrender.com/api/auth/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

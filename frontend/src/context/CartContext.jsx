@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
 
   // Create axios instance with auth
   const api = axios.create({
-    baseURL: 'http://localhost:3001/api/cart',
+    baseURL: 'https://full-stack-api-d7xf.onrender.com/api/cart',
   });
 
   // Add auth token to requests

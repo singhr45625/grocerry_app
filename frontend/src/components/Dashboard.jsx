@@ -26,7 +26,7 @@ const Dashboard = () => {
     setProductsLoading(true);
     setError(null);
     try {
-      const response = await axios.get('http://localhost:3001/api/products', {
+      const response = await axios.get('https://full-stack-api-d7xf.onrender.com/api/products', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
