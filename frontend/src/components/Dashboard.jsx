@@ -26,7 +26,7 @@ const Dashboard = () => {
     setProductsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/products`, {
+      const response = await axios.get('http://localhost:3001/api/products', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -26,7 +26,6 @@ app.use("/api/cart", require("./routes/cartRoutes"));
 // Health check
 app.get("/", (req, res) => res.status(200).json({ status: "OK" }));
 
-
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -34,5 +33,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001;
-
-module.exports = app; 
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
 
   // Create axios instance with auth
   const api = axios.create({
-    baseURL: `${process.env.REACT_APP_API_URL}/api/cart`,
+    baseURL: 'http://localhost:3001/api/cart',
   });
 
   // Add auth token to requests
